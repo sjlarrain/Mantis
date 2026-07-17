@@ -40,12 +40,12 @@ describe('row level security', () => {
   })
 
   it.each(OWNER_TABLES)('%s has an owner_id = auth.uid() policy', (table) => {
-    const re = new RegExp(`create policy[^;]+on ${table}[^;]+owner_id = auth\\.uid\\(\\)`, 'is')
+    const re = new RegExp(`create policy[^;]+on ${table}[^;]+owner_id = auth\\.uid\\(\\)`, 'i')
     expect(rls).toMatch(re)
   })
 
   it('user_profiles is scoped by id = auth.uid()', () => {
-    expect(rls).toMatch(/create policy[^;]+on user_profiles[^;]+id = auth\.uid\(\)/is)
+    expect(rls).toMatch(/create policy[^;]+on user_profiles[^;]+id = auth\.uid\(\)/i)
   })
 })
 
