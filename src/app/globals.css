@@ -1,26 +1,99 @@
 @import "tailwindcss";
 
+/* ============================================================
+   Mantis design tokens
+   Botanical-precision: warm-neutral canvas, deep mantis green as the
+   single identity color, amber reserved strictly for "needs attention"
+   status, hairline borders instead of shadows. Sans for UI, mono for
+   data and micro-labels.
+   ============================================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --canvas: #fbfbf9;
+  --surface: #ffffff;
+  --ink: #191c1a;
+  --muted: #657068;
+  --faint: #8a938c;
+  --line: #e6e8e3;
+  --line-strong: #d3d7cf;
+  --accent: #2f6b4f;      /* mantis green */
+  --accent-soft: #e7f0ea;
+  --accent-ink: #1f4a36;
+  --attention: #b76a3f;   /* amber — overdue / quiet, status only */
+  --attention-soft: #f6ebe2;
+  --danger: #a23b3b;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --radius: 8px;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --canvas: #101311;
+    --surface: #171b18;
+    --ink: #e9ece7;
+    --muted: #9aa49c;
+    --faint: #6f7a72;
+    --line: #262b27;
+    --line-strong: #333a34;
+    --accent: #5fb08c;
+    --accent-soft: #17271f;
+    --accent-ink: #9ed7bb;
+    --attention: #d69663;
+    --attention-soft: #2a2018;
+    --danger: #d08585;
   }
 }
 
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-attention: var(--attention);
+  --color-attention-soft: var(--attention-soft);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+* {
+  border-color: var(--line);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Mono micro-label: the recurring eyebrow/section marker. */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* Tabular numerals for data columns. */
+.tnum {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
