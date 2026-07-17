@@ -18,6 +18,18 @@ export async function listTags(): Promise<Tag[]> {
   return (data ?? []) as Tag[]
 }
 
+// Active (non-archived) tags for a category — used to populate form pickers.
+export async function getTagsByCategory(category: TagCategory): Promise<Tag[]> {
+  const { supabase } = await getSession()
+  const { data } = await supabase
+    .from('tags')
+    .select('id, category, value, color, sort_order, archived_at')
+    .eq('category', category)
+    .is('archived_at', null)
+    .order('sort_order', { ascending: true })
+  return (data ?? []) as Tag[]
+}
+
 export async function createTag(input: {
   category: TagCategory
   value: string
