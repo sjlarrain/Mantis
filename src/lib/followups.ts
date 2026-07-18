@@ -16,6 +16,17 @@ export const DEFAULT_QUIET_THRESHOLDS: Record<ContactClass, number> = {
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 
+/**
+ * Map a (possibly renamed) contact-class tag value to a ContactClass key.
+ * Falls back to 'reach' so an unrecognized class still gets a sensible threshold.
+ */
+export function classKeyFromValue(value: string | null | undefined): ContactClass {
+  const v = (value ?? '').trim().toLowerCase()
+  if (v === 'target') return 'target'
+  if (v === 'backup') return 'backup'
+  return 'reach'
+}
+
 /** Whole days between two dates (b - a), truncated. */
 export function daysBetween(a: Date, b: Date): number {
   return Math.floor((b.getTime() - a.getTime()) / MS_PER_DAY)

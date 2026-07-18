@@ -119,7 +119,11 @@ $$;
 -- One row per live contact with its most recent action date. The dashboard joins
 -- this with user_profiles.settings to compute "quiet" contacts in the app (the
 -- threshold math lives in src/lib/followups.ts and is unit-tested there).
-create view contact_last_action as
+--
+-- security_invoker=true is REQUIRED: without it the view runs as its owner and
+-- bypasses RLS, leaking every user's contacts. With it, the querying user's RLS
+-- on contacts/actions applies.
+create view contact_last_action with (security_invoker = true) as
   select
     c.id            as contact_id,
     c.owner_id,

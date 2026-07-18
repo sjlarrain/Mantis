@@ -63,8 +63,10 @@ describe('bootstrap and helpers', () => {
     expect(functions).toContain('COMPANY_NOT_FOUND')
   })
 
-  it('exposes contact_last_action for the follow-up dashboard', () => {
-    expect(functions).toMatch(/create view contact_last_action/i)
+  it('exposes contact_last_action as a security_invoker view (RLS-safe)', () => {
+    expect(functions).toMatch(
+      /create view contact_last_action\s+with\s*\(\s*security_invoker\s*=\s*true\s*\)/i
+    )
   })
 })
 

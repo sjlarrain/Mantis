@@ -2,6 +2,7 @@ import {
   daysBetween,
   isQuiet,
   followUpBucket,
+  classKeyFromValue,
   DEFAULT_QUIET_THRESHOLDS,
 } from '@/lib/followups'
 
@@ -33,6 +34,18 @@ describe('isQuiet', () => {
   it('honors custom thresholds', () => {
     const d5 = new Date('2026-07-12T12:00:00Z')
     expect(isQuiet(d5, 'target', NOW, { ...DEFAULT_QUIET_THRESHOLDS, target: 3 })).toBe(true)
+  })
+})
+
+describe('classKeyFromValue', () => {
+  it('maps known class values case-insensitively', () => {
+    expect(classKeyFromValue('Target')).toBe('target')
+    expect(classKeyFromValue('BACKUP')).toBe('backup')
+    expect(classKeyFromValue('Reach')).toBe('reach')
+  })
+  it('falls back to reach for unknown or empty values', () => {
+    expect(classKeyFromValue('VIP')).toBe('reach')
+    expect(classKeyFromValue(null)).toBe('reach')
   })
 })
 
