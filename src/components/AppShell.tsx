@@ -16,6 +16,7 @@ const NAV = [
   { href: '/table', label: 'Table', glyph: '▦' },
   { href: '/notes', label: 'Notes', glyph: '✎' },
   { href: '/wishlist', label: 'Wishlist', glyph: '☆' },
+  { href: '/guide', label: 'Guide', glyph: '❔' }, // TEMPORARY — remove after review
 ]
 
 function isActive(pathname: string, href: string): boolean {

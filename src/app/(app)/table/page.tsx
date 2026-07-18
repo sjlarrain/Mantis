@@ -15,7 +15,7 @@ export default async function TablePage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Overview" title="Full table" action={{ href: '/people/new', label: 'New person' }} />
+      <PageHeader eyebrow="Overview" title="Full table" />
 
       {rows.length === 0 ? (
         <EmptyState title="Nothing to show yet" hint="Add people and log actions to fill the table." />
