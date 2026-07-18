@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getDashboard } from '@/lib/actions/dashboard'
 import { Card, Badge, EmptyState } from '@/components/ui/Card'
+import { CREATE_ACTIONS } from '@/components/create-actions'
 import { formatDate } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
@@ -16,6 +17,25 @@ export default async function DashboardPage() {
         <p className="eyebrow">Today</p>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight">Dashboard</h1>
       </header>
+
+      <section>
+        <p className="eyebrow mb-3">Quick actions</p>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {CREATE_ACTIONS.map((a) => (
+            <Link key={a.href} href={a.href}>
+              <Card className="flex items-center gap-3 p-4 transition-colors hover:border-line-strong">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink">
+                  {a.glyph}
+                </span>
+                <span>
+                  <span className="block text-sm font-medium text-ink">{a.label}</span>
+                  <span className="block text-xs text-muted">{a.hint}</span>
+                </span>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <section className="grid gap-4 sm:grid-cols-3">
         <Stat label="Needs follow-up" value={followUps.length} href="#followups" />
