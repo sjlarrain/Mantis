@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mantis
 
-## Getting Started
+A personal networking / job-search CRM: track target companies, the people inside them,
+every touchpoint, notes, follow-ups, and a wishlist of interesting positions. Built as a
+mobile-first PWA so it installs on your phone, with a REST API and an MCP server so Claude and
+WhatsApp (via Secretariat) can operate it too.
 
-First, run the development server:
+## Stack
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind v4 · Supabase (Postgres + Auth +
+RLS) · Zod · MCP (`mcp-handler`). Hosted on Vercel + Supabase.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Architecture
+- **Multi-user, private per owner.** Every table has `owner_id` and RLS `owner_id = auth.uid()`.
+- **Web UI** uses Server Actions scoped by the user's session (RLS).
+- **REST API** (`/api/v1`, service-role) and **MCP** (`/api/mcp`) authenticate via Supabase JWT
+  or `mnt_` personal access tokens, and enforce owner scoping in code.
+- **No loose knots:** contacts are created together with their company in one transaction
+  (`create_contact_bundle`), from both the forms and the API.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Getting started
+1. Create a Supabase project; run the SQL in `supabase/migrations/` in order (001 → 003).
+2. Copy `.env.example` to `.env.local` and fill in the Supabase URL + anon key + service-role key.
+3. `npm install` then `npm run dev`. Sign up at `/signup` (email confirmation per your Supabase
+   settings). Your profile and default tags are seeded automatically on first sign-in.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Commands
+`npm run dev` · `npm run build` · `npx jest` (tests) · `npx tsc --noEmit` (typecheck)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Docs
+- [docs/API.md](docs/API.md) — REST API reference (auth, scopes, endpoints)
+- [docs/MCP.md](docs/MCP.md) — connect the MCP server and its tools
+- [skills/mantis-crm/SKILL.md](skills/mantis-crm/SKILL.md) — Claude skill for operating Mantis
+- [docs/secretariat-integration.md](docs/secretariat-integration.md) — WhatsApp capture bridge
+- [PLAN.md](PLAN.md) — full design · [RULES.md](RULES.md) — working rules
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Views
+Dashboard (follow-ups + gone-quiet) · People · Companies · Full table · Notes (inbox + classify)
+· Wishlist · Settings (Tag Manager, API tokens).
