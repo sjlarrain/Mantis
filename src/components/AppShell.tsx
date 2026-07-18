@@ -10,6 +10,7 @@ const NAV = [
   { href: '/', label: 'Dashboard', glyph: '◆' },
   { href: '/people', label: 'People', glyph: '❋' },
   { href: '/companies', label: 'Companies', glyph: '▢' },
+  { href: '/table', label: 'Table', glyph: '▦' },
   { href: '/notes', label: 'Notes', glyph: '✎' },
   { href: '/wishlist', label: 'Wishlist', glyph: '☆' },
 ]
