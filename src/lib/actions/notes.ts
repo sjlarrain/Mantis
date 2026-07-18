@@ -18,6 +18,17 @@ export async function listInboxNotes(): Promise<Note[]> {
   return (data ?? []) as Note[]
 }
 
+export type NoteWithContact = Note & { contact: { id: string; full_name: string } | null }
+
+export async function listAllNotes(): Promise<NoteWithContact[]> {
+  const { supabase } = await getSession()
+  const { data } = await supabase
+    .from('notes')
+    .select('*, contact:contacts(id, full_name)')
+    .order('created_at', { ascending: false })
+  return (data ?? []) as NoteWithContact[]
+}
+
 export async function listNotesForContact(contactId: string): Promise<Note[]> {
   const { supabase } = await getSession()
   const { data } = await supabase
