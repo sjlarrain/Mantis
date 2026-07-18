@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { Input, Label } from '@/components/ui/Input'
 import { TagSelect } from '@/components/ui/Select'
 import { CompanyPicker } from './CompanyPicker'
+import { TitleField } from './TitleField'
 import type { Company, Contact, Tag } from '@/types'
 
 interface Props {
@@ -54,11 +55,11 @@ export function ContactForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <TagSelect name="class_tag_id" label="Class" tags={classTags} defaultValue={contact?.class_tag_id} />
-        <TagSelect name="title_tag_id" label="Title (catalog)" tags={titleTags} defaultValue={contact?.title_tag_id} />
+        <TitleField titleTags={titleTags} defaultValue={contact?.title_tag_id} />
       </div>
 
       <div>
-        <Label htmlFor="title_free">Title (free text)</Label>
+        <Label htmlFor="title_free">Title (custom, optional)</Label>
         <Input id="title_free" name="title_free" placeholder="e.g. Head of Community Engagement"
           defaultValue={contact?.title_free ?? ''} />
       </div>

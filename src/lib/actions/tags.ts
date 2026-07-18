@@ -34,7 +34,7 @@ export async function createTag(input: {
   category: TagCategory
   value: string
   color?: string
-}): Promise<{ ok: true } | { ok: false; error: string }> {
+}): Promise<{ ok: true; tag: Tag } | { ok: false; error: string }> {
   const parsed = tagCreateSchema.safeParse(input)
   if (!parsed.success) return { ok: false, error: 'Invalid tag' }
 
@@ -48,19 +48,25 @@ export async function createTag(input: {
     .limit(1)
     .maybeSingle()
 
-  const { error } = await supabase.from('tags').insert({
-    owner_id: userId,
-    category: parsed.data.category,
-    value: parsed.data.value,
-    color: parsed.data.color ?? null,
-    sort_order: (last?.sort_order ?? -1) + 1,
-  })
+  // Return the inserted row so inline pickers (e.g. the contact Title field) can
+  // select the tag they just created without a full page reload.
+  const { data, error } = await supabase
+    .from('tags')
+    .insert({
+      owner_id: userId,
+      category: parsed.data.category,
+      value: parsed.data.value,
+      color: parsed.data.color ?? null,
+      sort_order: (last?.sort_order ?? -1) + 1,
+    })
+    .select('id, category, value, color, sort_order, archived_at')
+    .single()
 
   if (error) {
     return { ok: false, error: error.code === '23505' ? 'That value already exists' : error.message }
   }
   revalidatePath('/settings')
-  return { ok: true }
+  return { ok: true, tag: data as Tag }
 }
 
 export async function renameTag(
