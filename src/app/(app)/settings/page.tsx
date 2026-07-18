@@ -1,11 +1,13 @@
 import { listTags } from '@/lib/actions/tags'
+import { listTokens } from '@/lib/actions/tokens'
 import { TagManager } from './TagManager'
+import { ApiTokens } from './ApiTokens'
 import { SignOutButton } from './SignOutButton'
 
 export const dynamic = 'force-dynamic'
 
 export default async function SettingsPage() {
-  const tags = await listTags()
+  const [tags, tokens] = await Promise.all([listTags(), listTokens()])
 
   return (
     <div className="space-y-8">
@@ -24,6 +26,11 @@ export default async function SettingsPage() {
           talk about your search; archive the ones you don&apos;t use.
         </p>
         <TagManager initialTags={tags} />
+      </section>
+
+      <section>
+        <p className="eyebrow mb-3">API tokens</p>
+        <ApiTokens initialTokens={tokens} />
       </section>
     </div>
   )
