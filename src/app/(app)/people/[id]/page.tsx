@@ -1,10 +1,16 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getContact, softDeleteContact } from '@/lib/actions/contacts'
-import { listTags } from '@/lib/actions/tags'
+import { listActions } from '@/lib/actions/actions'
+import { listNotesForContact } from '@/lib/actions/notes'
+import { listTags, getTagsByCategory } from '@/lib/actions/tags'
+import { buildTimeline } from '@/lib/timeline'
 import { Button } from '@/components/ui/Button'
-import { Card, Badge, EmptyState } from '@/components/ui/Card'
+import { Card, Badge } from '@/components/ui/Card'
 import { DeleteButton } from '@/components/DeleteButton'
+import { Timeline } from '@/components/Timeline'
+import { LogActionForm } from '@/components/forms/LogActionForm'
+import { AddNoteForm } from '@/components/forms/AddNoteForm'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,12 +20,19 @@ export default async function PersonDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const [contact, tags] = await Promise.all([getContact(id), listTags()])
+  const [contact, tags, actionTypeTags, actions, notes] = await Promise.all([
+    getContact(id),
+    listTags(),
+    getTagsByCategory('action_type'),
+    listActions(id),
+    listNotesForContact(id),
+  ])
   if (!contact) notFound()
 
   const tagValue = (tid: string | null) => tags.find((t) => t.id === tid)?.value
   const title = contact.title_free || tagValue(contact.title_tag_id)
   const deleteAction = softDeleteContact.bind(null, id)
+  const timeline = buildTimeline(actions, notes)
 
   return (
     <div className="space-y-8">
@@ -62,9 +75,18 @@ export default async function PersonDetailPage({
         </div>
       </Card>
 
-      <section>
-        <p className="eyebrow mb-3">Activity</p>
-        <EmptyState title="No actions logged yet" hint="Logging meetings and outreach lands here in the next step." />
+      <section className="grid gap-8 lg:grid-cols-2">
+        <div>
+          <p className="eyebrow mb-3">Log a touchpoint</p>
+          <LogActionForm contactId={id} typeTags={actionTypeTags} />
+          <div className="mt-4">
+            <AddNoteForm contactId={id} />
+          </div>
+        </div>
+        <div>
+          <p className="eyebrow mb-3">Activity</p>
+          <Timeline items={timeline} tagValue={tagValue} />
+        </div>
       </section>
     </div>
   )
