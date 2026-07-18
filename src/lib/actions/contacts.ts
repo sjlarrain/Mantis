@@ -47,12 +47,15 @@ function contactFromForm(form: FormData) {
   }
 }
 
-// Create a contact, creating its company inline if needed — one atomic call to
-// create_contact_bundle so a person can never be saved without a company.
-export async function createContact(form: FormData) {
+// Run the atomic create_contact_bundle RPC (creating the company inline if
+// needed) so a person can never be saved without a company. Shared by the
+// redirecting create and the returning create below.
+async function runContactBundle(
+  form: FormData
+): Promise<{ ok: false; error: string } | { ok: true; contactId: string }> {
   const contact = contactFromForm(form)
   const parsed = contactCoreSchema.safeParse(contact)
-  if (!parsed.success) return { ok: false as const, error: 'Please add the person’s name.' }
+  if (!parsed.success) return { ok: false, error: 'Please add the person’s name.' }
 
   const existingCompanyId = form.get('company_id')
   const newCompanyName = form.get('new_company_name')
@@ -60,7 +63,7 @@ export async function createContact(form: FormData) {
     typeof existingCompanyId === 'string' ? existingCompanyId : null,
     typeof newCompanyName === 'string' ? newCompanyName : null
   )
-  if (!company) return { ok: false as const, error: 'Pick a company or add a new one.' }
+  if (!company) return { ok: false, error: 'Pick a company or add a new one.' }
 
   const { supabase, userId } = await getSession()
   const { data, error } = await supabase.rpc('create_contact_bundle', {
@@ -71,11 +74,48 @@ export async function createContact(form: FormData) {
     p_note: null,
   })
 
-  if (error) return { ok: false as const, error: mapBundleError(error.message) }
+  if (error) return { ok: false, error: mapBundleError(error.message) }
+  return { ok: true, contactId: (data as { contact_id: string }).contact_id }
+}
+
+// Create a contact and redirect to their profile (the standalone /people/new page).
+export async function createContact(form: FormData) {
+  const res = await runContactBundle(form)
+  if (!res.ok) return { ok: false as const, error: res.error }
 
   revalidatePath('/people')
   revalidatePath('/companies')
-  redirect(`/people/${(data as { contact_id: string }).contact_id}`)
+  redirect(`/people/${res.contactId}`)
+}
+
+// Create a contact and return it instead of redirecting — used by the inline
+// person step of the New Meeting flow, which stays on the meeting afterwards.
+export async function createContactReturning(
+  form: FormData
+): Promise<
+  | { ok: false; error: string }
+  | { ok: true; contact: { id: string; full_name: string; company: Pick<Company, 'id' | 'name'> | null } }
+> {
+  const res = await runContactBundle(form)
+  if (!res.ok) return { ok: false, error: res.error }
+
+  const { supabase } = await getSession()
+  const { data: created } = await supabase
+    .from('contacts')
+    .select('id, full_name, company:companies(id, name)')
+    .eq('id', res.contactId)
+    .maybeSingle()
+
+  revalidatePath('/people')
+  revalidatePath('/companies')
+  return {
+    ok: true,
+    contact: {
+      id: res.contactId,
+      full_name: (created?.full_name as string | undefined) ?? '',
+      company: (created?.company as unknown as Pick<Company, 'id' | 'name'> | null) ?? null,
+    },
+  }
 }
 
 
